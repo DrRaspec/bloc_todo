@@ -3,9 +3,10 @@ import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/material.dart';
 
 class TodoCard extends StatelessWidget {
-  const TodoCard({super.key, required this.todo});
+  const TodoCard({super.key, required this.todo, this.onCompletedChanged});
 
   final TodoModel todo;
+  final Future<void> Function(TodoModel todo, bool? value)? onCompletedChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +21,8 @@ class TodoCard extends StatelessWidget {
         children: [
           Checkbox(
             value: todo.isCompleted,
-            onChanged: (value) {
-              // TODO: Toggle completed
+            onChanged: (value) async {
+              await onCompletedChanged?.call(todo, value);
             },
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(6),

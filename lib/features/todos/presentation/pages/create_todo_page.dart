@@ -4,6 +4,7 @@ import 'package:bloc_todo/shared/enums/todo_priority.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class CreateTodoPage extends StatefulWidget {
   const CreateTodoPage({super.key});
@@ -19,6 +20,7 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
 
   TodoPriority _priority = TodoPriority.medium;
   late DateTime _dueDate;
+  DateTime? _reminderAt;
 
   @override
   void initState() {
@@ -48,6 +50,8 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
         isCompleted: false,
         priority: _priority,
         dueDate: _dueDate,
+        reminderAt: _reminderAt,
+        notificationId: null,
         createdAt: now,
         updatedAt: now,
       ),
@@ -59,6 +63,12 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
     return BlocConsumer<CreateTodoCubit, CreateTodoState>(
       listener: (context, state) {
         if (state.status == CreateTodoStatus.success) {
+          if (state.warningMessage != null) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text(state.warningMessage!)));
+          }
+
           Navigator.of(context).pop(state.createdTodo);
         }
 
@@ -98,6 +108,7 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
                         descriptionController: _descriptionController,
                         priority: _priority,
                         dueDate: _dueDate,
+                        reminderAt: _reminderAt,
                         enabled: !isSubmitting,
                         onPriorityChanged: (priority) {
                           setState(() => _priority = priority);
@@ -137,7 +148,13 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
     );
 
     if (selectedDate != null && mounted) {
-      setState(() => _dueDate = selectedDate);
+      setState(() {
+        _dueDate = selectedDate;
+
+        if (_reminderAt != null && _reminderAt!.isAfter(_endOfDueDate())) {
+          _reminderAt = null;
+        }
+      });
     }
   }
 
@@ -146,13 +163,81 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => const _ReminderBottomSheet(),
+      builder: (_) => const _ReminderBottomSheet(),
     );
 
     if (option == null) return;
 
-    // TODO: Handle the selected reminder option.
-    // For a custom reminder, open date and time pickers here.
+    DateTime? reminderAt;
+
+    switch (option) {
+      case _ReminderOption.none:
+        reminderAt = null;
+
+      case _ReminderOption.atDueTime:
+        reminderAt = DateTime(_dueDate.year, _dueDate.month, _dueDate.day, 9);
+
+      case _ReminderOption.tenMinutesBefore:
+        reminderAt = _dueDateAtNine().subtract(const Duration(minutes: 10));
+
+      case _ReminderOption.oneHourBefore:
+        reminderAt = _dueDateAtNine().subtract(const Duration(hours: 1));
+
+      case _ReminderOption.oneDayBefore:
+        reminderAt = _dueDateAtNine().subtract(const Duration(days: 1));
+
+      case _ReminderOption.custom:
+        reminderAt = await _pickCustomReminder();
+    }
+
+    if (reminderAt != null && !reminderAt.isAfter(DateTime.now())) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reminder must be in the future')),
+      );
+      return;
+    }
+
+    setState(() => _reminderAt = reminderAt);
+  }
+
+  DateTime _dueDateAtNine() {
+    return DateTime(_dueDate.year, _dueDate.month, _dueDate.day, 9);
+  }
+
+  DateTime _endOfDueDate() {
+    return DateTime(
+      _dueDate.year,
+      _dueDate.month,
+      _dueDate.day,
+      23,
+      59,
+      59,
+      999,
+    );
+  }
+
+  Future<DateTime?> _pickCustomReminder() async {
+    final now = DateTime.now();
+
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _dueDate,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: _dueDate,
+    );
+
+    if (date == null || !mounted) return null;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (time == null) return null;
+
+    return DateTime(date.year, date.month, date.day, time.hour, time.minute);
   }
 }
 
@@ -209,6 +294,7 @@ class _TodoFormCard extends StatelessWidget {
     required this.descriptionController,
     required this.priority,
     required this.dueDate,
+    required this.reminderAt,
     required this.enabled,
     required this.onPriorityChanged,
     required this.onDueDateTap,
@@ -219,6 +305,7 @@ class _TodoFormCard extends StatelessWidget {
   final TextEditingController descriptionController;
   final TodoPriority priority;
   final DateTime dueDate;
+  final DateTime? reminderAt;
   final bool enabled;
   final ValueChanged<TodoPriority> onPriorityChanged;
   final VoidCallback onDueDateTap;
@@ -275,7 +362,9 @@ class _TodoFormCard extends StatelessWidget {
         _OptionTile(
           icon: Icons.notifications_none_rounded,
           title: 'Reminder',
-          subtitle: 'No reminder',
+          subtitle: reminderAt == null
+              ? 'No reminder'
+              : DateFormat('dd/MM/yyyy HH:mm').format(reminderAt!),
           onTap: enabled ? onReminderTap : null,
         ),
       ],

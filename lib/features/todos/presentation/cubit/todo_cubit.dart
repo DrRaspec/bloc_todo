@@ -1,3 +1,5 @@
+import 'package:bloc_todo/core/utils/app_logger.dart';
+import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'todo_state.dart';
 import '../../domain/repositories/todo_repository.dart';
@@ -30,8 +32,9 @@ class TodoCubit extends Cubit<TodoState> {
       _hasMore = todos.length == _limit;
 
       emit(TodoLoaded(todos: todos, hasMore: _hasMore));
-    } catch (e) {
-      emit(TodoError(message: e.toString()));
+    } catch (error, stackTrace) {
+      AppLogger.e('Failed to load todos', error: error, stackTrace: stackTrace);
+      emit(TodoError(message: error.toString()));
     }
   }
 
@@ -58,11 +61,43 @@ class TodoCubit extends Cubit<TodoState> {
       emit(
         TodoLoaded(todos: allTodos, hasMore: _hasMore, isLoadingMore: false),
       );
-    } catch (e) {
+    } catch (error, stackTrace) {
+      AppLogger.e(
+        'Failed to load more todos',
+        error: error,
+        stackTrace: stackTrace,
+      );
       emit(currentState.copyWith(isLoadingMore: false));
-      emit(TodoError(message: e.toString()));
+      emit(TodoError(message: error.toString()));
     } finally {
       _isLoading = false;
+    }
+  }
+
+  Future<void> toggleTodoCompleted(TodoModel todo) async {
+    try {
+      final updatedTodo = todo.copyWith(
+        isCompleted: !(todo.isCompleted ?? false),
+      );
+
+      await repository.updateTodo(updatedTodo);
+
+      final currentState = state;
+
+      if (currentState is TodoLoaded) {
+        final updatedTodos = currentState.todos.map((t) {
+          return t.id == updatedTodo.id ? updatedTodo : t;
+        }).toList();
+
+        emit(currentState.copyWith(todos: updatedTodos));
+      }
+    } catch (error, stackTrace) {
+      AppLogger.e(
+        'Failed to toggle todo completed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      emit(TodoError(message: error.toString()));
     }
   }
 }

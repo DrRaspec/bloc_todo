@@ -7,9 +7,11 @@ class CreateTodoState {
     this.status = CreateTodoStatus.initial,
     this.createdTodo,
     this.errorMessage,
+    this.warningMessage,
   });
 
   final CreateTodoStatus status;
   final TodoModel? createdTodo;
   final String? errorMessage;
+  final String? warningMessage;
 }

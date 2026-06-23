@@ -2,7 +2,7 @@ import 'package:bloc_todo/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
@@ -58,14 +58,10 @@ class NotificationService {
       ),
     );
 
-    final initialized = await _plugin.initialize(
+    await _plugin.initialize(
       settings: initializationSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
-
-    if (initialized != true) {
-      throw StateError('Could not initialize local notifications');
-    }
 
     await _createAndroidChannel();
     _isInitialized = true;

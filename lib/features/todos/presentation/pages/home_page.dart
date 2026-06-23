@@ -1,7 +1,9 @@
 import 'package:bloc_todo/features/todos/presentation/cubit/todo_cubit.dart';
 import 'package:bloc_todo/features/todos/presentation/cubit/todo_state.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_shimmer_view.dart';
+import 'package:bloc_todo/features/todos/presentation/widgets/home_error_view.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_view.dart';
+import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -30,6 +32,12 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> onCompletedChanged(TodoModel todo, bool? value) async {
+    if (value == null) return;
+
+    await context.read<TodoCubit>().toggleTodoCompleted(todo);
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -53,13 +61,14 @@ class _HomePageState extends State<HomePage> {
           }
 
           if (state is TodoError) {
-            return Center(child: Text(state.message));
+            return HomeErrorView(onRetry: context.read<TodoCubit>().loadTodos);
           }
 
           if (state is TodoLoaded) {
             return HomeView(
               todos: state.todos,
               scrollController: _scrollController,
+              onCompletedChanged: onCompletedChanged,
             );
           }
 

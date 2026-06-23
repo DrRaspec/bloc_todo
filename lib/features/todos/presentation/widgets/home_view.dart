@@ -15,10 +15,12 @@ class HomeView extends StatelessWidget {
     super.key,
     required this.todos,
     required this.scrollController,
+    this.onCompletedChanged,
   });
 
   final List<TodoModel> todos;
   final ScrollController scrollController;
+  final Future<void> Function(TodoModel todo, bool? value)? onCompletedChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +49,9 @@ class HomeView extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
               sliver: SliverToBoxAdapter(child: HomeHeader()),
             ),
-            const SliverPadding(
+            SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
-              sliver: SliverToBoxAdapter(child: HomeSummaryCard()),
+              sliver: SliverToBoxAdapter(child: HomeSummaryCard(todos: todos)),
             ),
             const SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -67,7 +69,10 @@ class HomeView extends StatelessWidget {
                       itemCount: todos.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
-                        return TodoCard(todo: todos[index]);
+                        return TodoCard(
+                          todo: todos[index],
+                          onCompletedChanged: onCompletedChanged,
+                        );
                       },
                     ),
             ),

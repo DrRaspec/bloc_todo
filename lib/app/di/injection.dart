@@ -40,7 +40,10 @@ class Injection {
     );
 
     getIt.registerFactory<CreateTodoCubit>(
-      () => CreateTodoCubit(repository: getIt<TodoRepository>()),
+      () => CreateTodoCubit(
+        repository: getIt<TodoRepository>(),
+        notificationService: getIt<NotificationService>(),
+      ),
     );
   }
 }

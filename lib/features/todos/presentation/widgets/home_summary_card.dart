@@ -1,10 +1,16 @@
+import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/material.dart';
 
 class HomeSummaryCard extends StatelessWidget {
-  const HomeSummaryCard({super.key});
+  final List<TodoModel> todos;
+  const HomeSummaryCard({super.key, required this.todos});
 
   @override
   Widget build(BuildContext context) {
+    final total = todos.length;
+    final completed = todos.where((todo) => (todo.isCompleted ?? false)).length;
+    double percentage = total > 0 ? (completed / total) * 100 : 0;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -13,7 +19,7 @@ class HomeSummaryCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -27,7 +33,7 @@ class HomeSummaryCard extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '1 of 3 completed',
+                  '$completed of $total completed',
                   style: TextStyle(color: Color(0xFFBDBDBD), fontSize: 14),
                 ),
               ],
@@ -40,14 +46,14 @@ class HomeSummaryCard extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 CircularProgressIndicator(
-                  value: 0.33,
+                  value: percentage / 100,
                   strokeWidth: 6,
                   backgroundColor: Colors.white.withValues(alpha: 0.14),
                   valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
-                const Center(
+                Center(
                   child: Text(
-                    '33%',
+                    '$percentage%',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 13,
