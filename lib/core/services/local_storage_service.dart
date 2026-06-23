@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
@@ -118,7 +119,11 @@ class LocalStorageService {
     return null;
   }
 
-  Future<List<TodoModel>> getTodos(int page, int limit) async {
+  Future<List<TodoModel>> getTodos(
+    int page,
+    int limit,
+    TodoFilter filter,
+  ) async {
     if (!isOpen()) {
       await open();
     }
@@ -127,6 +132,8 @@ class LocalStorageService {
       limit: limit,
       offset: page * limit,
       orderBy: '$columnCreatedAt DESC',
+      where: _getFilterWhereClause(filter),
+      whereArgs: _getFilterWhereArgs(filter),
     );
     return List.generate(maps.length, (i) {
       return TodoModel.fromMap(maps[i]);
@@ -201,6 +208,28 @@ class LocalStorageService {
   Future<void> close() async {
     if (isInitialized() && isOpen()) {
       await _database!.close();
+    }
+  }
+
+  String? _getFilterWhereClause(TodoFilter filter) {
+    switch (filter) {
+      case TodoFilter.active:
+        return '$columnIsCompleted = 0';
+      case TodoFilter.completed:
+        return '$columnIsCompleted = 1';
+      case TodoFilter.all:
+        return null;
+    }
+  }
+
+  List<dynamic>? _getFilterWhereArgs(TodoFilter filter) {
+    switch (filter) {
+      case TodoFilter.active:
+        return [0];
+      case TodoFilter.completed:
+        return [1];
+      case TodoFilter.all:
+        return null;
     }
   }
 }

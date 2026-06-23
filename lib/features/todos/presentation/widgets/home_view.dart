@@ -5,6 +5,7 @@ import 'package:bloc_todo/features/todos/presentation/widgets/home_header.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_search_box.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_summary_card.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/todo_card.dart';
+import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,11 +16,15 @@ class HomeView extends StatelessWidget {
     super.key,
     required this.todos,
     required this.scrollController,
+    this.changeFilter,
+    this.selectedFilterIndex = 0,
     this.onCompletedChanged,
   });
 
   final List<TodoModel> todos;
   final ScrollController scrollController;
+  final Future<void> Function(TodoFilter filter)? changeFilter;
+  final int selectedFilterIndex;
   final Future<void> Function(TodoModel todo, bool? value)? onCompletedChanged;
 
   @override
@@ -57,9 +62,11 @@ class HomeView extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
               sliver: SliverToBoxAdapter(child: HomeSearchBox()),
             ),
-            const SliverPadding(
+            SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 18, 20, 0),
-              sliver: SliverToBoxAdapter(child: HomeFilterChips()),
+              sliver: SliverToBoxAdapter(
+                child: HomeFilterChips(changeFilter: changeFilter, selectedFilterIndex: selectedFilterIndex),
+              ),
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 100),

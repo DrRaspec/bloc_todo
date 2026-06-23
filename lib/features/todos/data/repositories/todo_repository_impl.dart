@@ -1,5 +1,6 @@
 import 'package:bloc_todo/core/services/local_storage_service.dart';
 import 'package:bloc_todo/features/todos/domain/repositories/todo_repository.dart';
+import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 
 class TodoRepositoryImpl extends TodoRepository {
@@ -38,8 +39,8 @@ class TodoRepositoryImpl extends TodoRepository {
   }
 
   @override
-  Future<List<TodoModel>> getTodos(int page, int limit) {
-    return localDb.getTodos(page, limit);
+  Future<List<TodoModel>> getTodos(int page, int limit, TodoFilter filter) {
+    return localDb.getTodos(page, limit, filter);
   }
 
   @override

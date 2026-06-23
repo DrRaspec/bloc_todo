@@ -1,4 +1,5 @@
 import 'package:bloc_todo/core/utils/app_logger.dart';
+import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'todo_state.dart';
@@ -14,15 +15,25 @@ class TodoCubit extends Cubit<TodoState> {
   int _page = 0;
   bool _hasMore = true;
   bool _isLoading = false;
+  TodoFilter _currentFilter = TodoFilter.all;
 
-  Future<void> loadTodos() async {
+  Future<void> changeFilter(TodoFilter filter) async {
+    _currentFilter = filter;
+    await loadTodos(filter: filter);
+  }
+
+  Future<void> loadTodos({TodoFilter? filter}) async {
     try {
       emit(TodoLoading());
 
       _page = 0;
       _hasMore = true;
 
-      final todos = await repository.getTodos(_page, _limit);
+      final todos = await repository.getTodos(
+        _page,
+        _limit,
+        filter ?? _currentFilter,
+      );
 
       if (todos.isEmpty) {
         emit(TodoEmpty());
@@ -38,7 +49,7 @@ class TodoCubit extends Cubit<TodoState> {
     }
   }
 
-  Future<void> loadMoreTodos() async {
+  Future<void> loadMoreTodos({TodoFilter? filter}) async {
     final currentState = state;
 
     if (currentState is! TodoLoaded) return;
@@ -51,7 +62,11 @@ class TodoCubit extends Cubit<TodoState> {
 
       final nextPage = _page + 1;
 
-      final newTodos = await repository.getTodos(nextPage, _limit);
+      final newTodos = await repository.getTodos(
+        nextPage,
+        _limit,
+        filter ?? _currentFilter,
+      );
 
       _page = nextPage;
       _hasMore = newTodos.length == _limit;

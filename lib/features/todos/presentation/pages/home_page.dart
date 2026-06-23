@@ -1,8 +1,10 @@
+import 'package:bloc_todo/core/utils/app_logger.dart';
 import 'package:bloc_todo/features/todos/presentation/cubit/todo_cubit.dart';
 import 'package:bloc_todo/features/todos/presentation/cubit/todo_state.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_shimmer_view.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_error_view.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_view.dart';
+import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +18,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
+
+  int selectedFilterIndex = 0;
 
   @override
   void initState() {
@@ -38,6 +42,22 @@ class _HomePageState extends State<HomePage> {
     await context.read<TodoCubit>().toggleTodoCompleted(todo);
   }
 
+  Future<void> changeFilter(TodoFilter filter) async {
+    await context.read<TodoCubit>().changeFilter(filter);
+    AppLogger.d('Filter changed to: ${filter.index}');
+    setState(() {
+      selectedFilterIndex = filter.index;
+    });
+  }
+
+  Future<void> onRefresh() async {
+    await context.read<TodoCubit>().loadTodos();
+  }
+
+  Future<void> onRetry() async {
+    await context.read<TodoCubit>().loadTodos();
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -57,6 +77,8 @@ class _HomePageState extends State<HomePage> {
             return HomeView(
               todos: const [],
               scrollController: _scrollController,
+              selectedFilterIndex: selectedFilterIndex,
+              changeFilter: changeFilter,
             );
           }
 
@@ -68,6 +90,8 @@ class _HomePageState extends State<HomePage> {
             return HomeView(
               todos: state.todos,
               scrollController: _scrollController,
+              changeFilter: changeFilter,
+              selectedFilterIndex: selectedFilterIndex,
               onCompletedChanged: onCompletedChanged,
             );
           }

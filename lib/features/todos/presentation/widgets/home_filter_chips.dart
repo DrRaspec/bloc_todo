@@ -1,7 +1,15 @@
+import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:flutter/material.dart';
 
 class HomeFilterChips extends StatelessWidget {
-  const HomeFilterChips({super.key});
+  const HomeFilterChips({
+    super.key,
+    this.changeFilter,
+    required this.selectedFilterIndex,
+  });
+
+  final Future<void> Function(TodoFilter filter)? changeFilter;
+  final int selectedFilterIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -9,25 +17,25 @@ class HomeFilterChips extends StatelessWidget {
       children: [
         _FilterChipItem(
           label: 'All',
-          selected: true,
+          selected: selectedFilterIndex == 0,
           onTap: () {
-            // TODO: Filter all
+            changeFilter?.call(TodoFilter.all);
           },
         ),
         const SizedBox(width: 10),
         _FilterChipItem(
           label: 'Active',
-          selected: false,
+          selected: selectedFilterIndex == 1,
           onTap: () {
-            // TODO: Filter active
+            changeFilter?.call(TodoFilter.active);
           },
         ),
         const SizedBox(width: 10),
         _FilterChipItem(
           label: 'Done',
-          selected: false,
+          selected: selectedFilterIndex == 2,
           onTap: () {
-            // TODO: Filter completed
+            changeFilter?.call(TodoFilter.completed);
           },
         ),
       ],
