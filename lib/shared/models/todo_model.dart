@@ -8,6 +8,7 @@ class TodoModel {
   final String? description;
   final bool? isCompleted;
   final TodoPriority? priority;
+  final DateTime? dueDate;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -17,6 +18,7 @@ class TodoModel {
     required this.description,
     required this.isCompleted,
     required this.priority,
+    required this.dueDate,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -26,8 +28,9 @@ class TodoModel {
       'id': id,
       'title': title,
       'description': description,
-      'isCompleted': isCompleted,
+      'isCompleted': isCompleted == true ? 1 : 0,
       'priority': priority?.index ?? 0,
+      'dueDate': dueDate?.millisecondsSinceEpoch,
       'createdAt': createdAt?.millisecondsSinceEpoch,
       'updatedAt': updatedAt?.millisecondsSinceEpoch,
     };
@@ -38,9 +41,16 @@ class TodoModel {
       id: map['id'] as int?,
       title: map['title'] as String?,
       description: map['description'] as String?,
-      isCompleted: map['isCompleted'] as bool?,
+      isCompleted: switch (map['isCompleted']) {
+        final bool value => value,
+        final int value => value == 1,
+        _ => null,
+      },
       priority: map['priority'] != null
           ? TodoPriority.values[map['priority'] as int]
+          : null,
+      dueDate: map['dueDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['dueDate'] as int)
           : null,
       createdAt: map['createdAt'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
@@ -62,6 +72,7 @@ class TodoModel {
     String? description,
     bool? isCompleted,
     TodoPriority? priority,
+    DateTime? dueDate,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -71,6 +82,7 @@ class TodoModel {
       description: description ?? this.description,
       isCompleted: isCompleted ?? this.isCompleted,
       priority: priority ?? this.priority,
+      dueDate: dueDate ?? this.dueDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -78,7 +90,7 @@ class TodoModel {
 
   @override
   String toString() {
-    return 'TodoModel(id: $id, title: $title, description: $description, isCompleted: $isCompleted, priority: $priority, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'TodoModel(id: $id, title: $title, description: $description, isCompleted: $isCompleted, priority: $priority, dueDate: $dueDate, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -90,6 +102,7 @@ class TodoModel {
         other.description == description &&
         other.isCompleted == isCompleted &&
         other.priority == priority &&
+        other.dueDate == dueDate &&
         other.createdAt == createdAt &&
         other.updatedAt == updatedAt;
   }
@@ -101,6 +114,7 @@ class TodoModel {
         description.hashCode ^
         isCompleted.hashCode ^
         priority.hashCode ^
+        dueDate.hashCode ^
         createdAt.hashCode ^
         updatedAt.hashCode;
   }

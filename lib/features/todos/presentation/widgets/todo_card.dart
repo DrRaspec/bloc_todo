@@ -63,9 +63,12 @@ class TodoCard extends StatelessWidget {
                   children: [
                     _SmallInfo(
                       icon: Icons.calendar_today_outlined,
-                      label: DateTimeHelper.formatDateTime(
-                        todo.createdAt ?? DateTime.now(),
-                      ),
+                      label: todo.dueDate == null
+                          ? 'No due date'
+                          : DateTimeHelper.formatDateTime(
+                              todo.dueDate!,
+                              format: 'dd/MM/yyyy',
+                            ),
                     ),
                     const SizedBox(width: 12),
                     _SmallInfo(

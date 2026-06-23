@@ -8,12 +8,14 @@ import 'package:sqflite/sqflite.dart';
 
 class LocalStorageService {
   static const dbName = 'todo.db';
-  static const dbVersion = 1;
+  static const dbVersion = 3;
   static const tableName = 'todos';
   static const columnId = 'id';
   static const columnTitle = 'title';
   static const columnDescription = 'description';
   static const columnIsCompleted = 'isCompleted';
+  static const columnPriority = 'priority';
+  static const columnDueDate = 'dueDate';
   static const columnCreatedAt = 'createdAt';
   static const columnUpdatedAt = 'updatedAt';
 
@@ -56,10 +58,25 @@ class LocalStorageService {
           $columnTitle TEXT NOT NULL,
           $columnDescription TEXT,
           $columnIsCompleted INTEGER NOT NULL,
-          $columnCreatedAt TEXT NOT NULL,
-          $columnUpdatedAt TEXT NOT NULL
+          $columnPriority INTEGER NOT NULL DEFAULT 0,
+          $columnDueDate INTEGER,
+          $columnCreatedAt INTEGER NOT NULL,
+          $columnUpdatedAt INTEGER NOT NULL
         )
       ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute(
+            'ALTER TABLE $tableName '
+            'ADD COLUMN $columnPriority INTEGER NOT NULL DEFAULT 0',
+          );
+        }
+        if (oldVersion < 3) {
+          await db.execute(
+            'ALTER TABLE $tableName ADD COLUMN $columnDueDate INTEGER',
+          );
+        }
       },
     );
   }

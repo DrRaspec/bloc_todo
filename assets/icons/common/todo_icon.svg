@@ -1,0 +1,62 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="softShadow" x="90" y="115" width="850" height="830" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="18" dy="24" stdDeviation="18" flood-color="#111827" flood-opacity="0.18"/>
+    </filter>
+    <linearGradient id="paperFront" x1="222" y1="148" x2="748" y2="835" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F7F8FA"/>
+    </linearGradient>
+    <linearGradient id="paperBack" x1="356" y1="230" x2="796" y2="835" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F2F4F7"/>
+      <stop offset="1" stop-color="#DDE2EA"/>
+    </linearGradient>
+    <linearGradient id="pin" x1="314" y1="190" x2="430" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#F7D900"/>
+      <stop offset="1" stop-color="#D7B800"/>
+    </linearGradient>
+  </defs>
+
+  <!-- App safe area background is transparent -->
+  <g filter="url(#softShadow)">
+    <!-- Back sheet -->
+    <path
+      d="M300 252C300 207.8 335.8 172 380 172H727C790 172 841 223 841 286V757C841 801.2 805.2 837 761 837H289C244.8 837 209 801.2 209 757V330C209 286.9 242 251.5 284.9 248.2L300 252Z"
+      fill="url(#paperBack)"
+      stroke="#2F3742"
+      stroke-width="24"
+      stroke-linejoin="round"
+    />
+
+    <!-- Front sheet -->
+    <path
+      d="M213 173C216.3 129.5 252.5 96 296.1 96H723.5C774.1 96 814.7 138.2 812.8 188.8C805.9 377.1 793.3 575.8 752.5 703.8C727.7 781.8 680.8 809 603 809H190.5C141.1 809 103 764.8 112.4 716.3C144.1 552.6 151.3 354.4 157 177.4C157.8 154.4 177.2 137.1 200.1 138.6L213 173Z"
+      fill="url(#paperFront)"
+      stroke="#2F3742"
+      stroke-width="24"
+      stroke-linejoin="round"
+    />
+
+    <!-- Right edge line -->
+    <path
+      d="M752 190C752 374 742 585 704 699"
+      stroke="#2F3742"
+      stroke-width="22"
+      stroke-linecap="round"
+    />
+
+    <!-- Yellow pin -->
+    <circle cx="356" cy="248" r="74" fill="url(#pin)"/>
+    <path d="M410 207C424 240 418 286 386 308" stroke="#BFA300" stroke-width="10" stroke-linecap="round" opacity="0.35"/>
+
+    <!-- Todo face / check style mark -->
+    <path
+      d="M324 527C355 482 383 473 414 520C455 582 502 580 558 526C587 498 616 498 644 522"
+      stroke="#2F3742"
+      stroke-width="34"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <circle cx="689" cy="554" r="25" fill="#2F3742"/>
+  </g>
+</svg>

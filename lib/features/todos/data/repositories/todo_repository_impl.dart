@@ -1,4 +1,4 @@
-import 'package:bloc_todo/core/storage/local_storage_service.dart';
+import 'package:bloc_todo/core/services/local_storage_service.dart';
 import 'package:bloc_todo/features/todos/domain/repositories/todo_repository.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 

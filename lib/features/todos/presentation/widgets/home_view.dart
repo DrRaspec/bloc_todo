@@ -1,3 +1,5 @@
+import 'package:bloc_todo/app/routes/app_routes.dart';
+import 'package:bloc_todo/features/todos/presentation/cubit/todo_cubit.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_filter_chips.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_header.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_search_box.dart';
@@ -5,6 +7,8 @@ import 'package:bloc_todo/features/todos/presentation/widgets/home_summary_card.
 import 'package:bloc_todo/features/todos/presentation/widgets/todo_card.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({
@@ -21,8 +25,14 @@ class HomeView extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Navigate to add todo screen
+        onPressed: () async {
+          final createdTodo = await context.push<TodoModel>(
+            AppRoutes.createTodo,
+          );
+
+          if (createdTodo != null && context.mounted) {
+            context.read<TodoCubit>().loadTodos();
+          }
         },
         backgroundColor: const Color(0xFF111111),
         foregroundColor: Colors.white,

@@ -1,6 +1,8 @@
 import 'package:bloc_todo/app/di/injection.dart';
 import 'package:bloc_todo/app/routes/app_routes.dart';
+import 'package:bloc_todo/features/todos/presentation/cubit/create_todo_cubit.dart';
 import 'package:bloc_todo/features/todos/presentation/cubit/todo_cubit.dart';
+import 'package:bloc_todo/features/todos/presentation/pages/create_todo_page.dart';
 import 'package:bloc_todo/features/todos/presentation/pages/home_page.dart';
 import 'package:bloc_todo/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +26,15 @@ class AppRouter {
           return BlocProvider(
             create: (_) => Injection.getIt<TodoCubit>()..loadTodos(),
             child: const HomePage(),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.createTodo,
+        builder: (context, state) {
+          return BlocProvider(
+            create: (_) => Injection.getIt<CreateTodoCubit>(),
+            child: const CreateTodoPage(),
           );
         },
       ),

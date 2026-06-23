@@ -12,21 +12,32 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
+  flutter_local_notifications: ^22.0.1
+  flutter_timezone: ^5.1.0
   get_it: ^9.2.1
   go_router: ^17.3.0
   intl: ^0.20.2
   lottie: ^3.3.3
   path: ^1.9.1
+  permission_handler: ^12.0.3
   shimmer: ^3.0.0
   sqflite: ^2.4.3
   sqflite_common_ffi: ^2.4.2
+  timezone: ^0.11.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
   build_runner: ^2.15.0
   flutter_gen_runner: ^5.14.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/common/todo_icon.png
+  remove_alpha_ios: true
 
 flutter_gen:
   output: lib/gen/
@@ -42,3 +53,4 @@ flutter:
 
   assets:
     - assets/animations/
+    - assets/images/common/
