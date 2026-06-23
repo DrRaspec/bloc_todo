@@ -1,0 +1,32 @@
+import 'package:bloc_todo/app/di/injection.dart';
+import 'package:bloc_todo/app/routes/app_routes.dart';
+import 'package:bloc_todo/features/todos/presentation/cubit/todo_cubit.dart';
+import 'package:bloc_todo/features/todos/presentation/pages/home_page.dart';
+import 'package:bloc_todo/features/splash/presentation/pages/splash_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+class AppRouter {
+  static final GoRouter router = GoRouter(
+    initialLocation: AppRoutes.splash,
+
+    routes: <RouteBase>[
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (BuildContext context, GoRouterState state) {
+          return const SplashPage();
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) {
+          return BlocProvider(
+            create: (_) => Injection.getIt<TodoCubit>()..loadTodos(),
+            child: const HomePage(),
+          );
+        },
+      ),
+    ],
+  );
+}
