@@ -6,6 +6,7 @@ import 'package:bloc_todo/features/todos/presentation/widgets/home_error_view.da
 import 'package:bloc_todo/features/todos/presentation/widgets/home_view.dart';
 import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -62,6 +63,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> onRefresh() async {
+    AppLogger.d('Refreshing todos');
     await context.read<TodoCubit>().loadTodos();
   }
 
@@ -78,39 +80,59 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<TodoCubit, TodoState>(
-        builder: (context, state) {
-          if (state is TodoLoading) {
-            return const HomeShimmerView();
-          }
-
-          if (state is TodoEmpty) {
-            return HomeView(
-              todos: const [],
-              scrollController: _scrollController,
-              selectedFilterIndex: selectedFilterIndex,
-              changeFilter: changeFilter,
-            );
-          }
-
-          if (state is TodoError) {
-            return HomeErrorView(onRetry: context.read<TodoCubit>().loadTodos);
-          }
-
-          if (state is TodoLoaded) {
-            return HomeView(
-              todos: state.todos,
-              scrollController: _scrollController,
-              changeFilter: changeFilter,
-              selectedFilterIndex: selectedFilterIndex,
-              onCompletedChanged: onCompletedChanged,
-              onSearchSubmitted: onSearchSubmitted,
-              onDelete: onDelete,
-            );
-          }
-
-          return const HomeShimmerView();
+      body: EasyRefresh(
+        onRefresh: () async {
+          await onRefresh();
         },
+        // header: Header(
+        //   position: IndicatorPosition.locator,
+        //   triggerOffset: null,
+        //   clamping: null,
+        // ),
+        // footer: Footer(
+        //   position: IndicatorPosition.locator,
+        //   triggerOffset: null,
+        //   clamping: null,
+        // ),
+        onLoad: () async {
+          return IndicatorResult.noMore;
+        },
+        child: BlocBuilder<TodoCubit, TodoState>(
+          builder: (context, state) {
+            if (state is TodoLoading) {
+              return const HomeShimmerView();
+            }
+
+            if (state is TodoEmpty) {
+              return HomeView(
+                todos: const [],
+                scrollController: _scrollController,
+                selectedFilterIndex: selectedFilterIndex,
+                changeFilter: changeFilter,
+              );
+            }
+
+            if (state is TodoError) {
+              return HomeErrorView(
+                onRetry: context.read<TodoCubit>().loadTodos,
+              );
+            }
+
+            if (state is TodoLoaded) {
+              return HomeView(
+                todos: state.todos,
+                scrollController: _scrollController,
+                changeFilter: changeFilter,
+                selectedFilterIndex: selectedFilterIndex,
+                onCompletedChanged: onCompletedChanged,
+                onSearchSubmitted: onSearchSubmitted,
+                onDelete: onDelete,
+              );
+            }
+
+            return const HomeShimmerView();
+          },
+        ),
       ),
     );
   }

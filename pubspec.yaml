@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   bloc: ^9.2.1
+  easy_refresh: ^3.5.1
   equatable: ^2.0.8
   fl_chart: ^1.2.0
   flutter:
@@ -26,6 +27,9 @@ dependencies:
   sqflite: ^2.4.3
   sqflite_common_ffi: ^2.4.2
   timezone: ^0.11.0
+
+  liquid_glass_bridge:
+    path: /Users/macbook/Downloads/liquid_glass_bridge
 
 dev_dependencies:
   flutter_test:

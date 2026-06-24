@@ -56,9 +56,11 @@ class HomeView extends StatelessWidget {
         child: CustomScrollView(
           controller: scrollController,
           slivers: [
-            const SliverPadding(
+            SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
-              sliver: SliverToBoxAdapter(child: HomeHeader()),
+              sliver: SliverToBoxAdapter(
+                child: HomeHeader(totalTodos: todos.length),
+              ),
             ),
             SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
@@ -133,7 +135,7 @@ class _EmptyTodoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: 40),
       child: Center(
         child: Text(

@@ -1,16 +1,22 @@
 PODS:
   - Flutter (1.0.0)
+  - liquid_glass_bridge (0.2.1):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
+  - liquid_glass_bridge (from `.symlinks/plugins/liquid_glass_bridge/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
+  liquid_glass_bridge:
+    :path: ".symlinks/plugins/liquid_glass_bridge/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  liquid_glass_bridge: af052585cd3dd8b5d0acf4f42106d3925e93001a
 
-PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
+PODFILE CHECKSUM: 251cb053df7158f337c0712f2ab29f4e0fa474ce
 
 COCOAPODS: 1.16.2

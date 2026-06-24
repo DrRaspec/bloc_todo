@@ -70,7 +70,7 @@ class _HomeSummaryCardState extends State<HomeSummaryCard> {
                 ),
                 borderData: FlBorderData(show: false),
                 sectionsSpace: 0,
-                centerSpaceRadius: 16,
+                centerSpaceRadius: 12,
                 sections: showingSections(),
               ),
             ),
