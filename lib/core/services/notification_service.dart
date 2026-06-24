@@ -334,7 +334,14 @@ class NotificationService {
       return;
     }
 
+    _openTodoDetailFromHome(todoIdInt);
+  }
+
+  void _openTodoDetailFromHome(int todoId) {
     AppRouter.router.go(AppRoutes.home);
-    AppRouter.router.push(AppRoutes.todoDetailPath(todoIdInt));
+
+    Future<void>.delayed(Duration.zero, () {
+      AppRouter.router.push(AppRoutes.todoDetailPath(todoId));
+    });
   }
 }

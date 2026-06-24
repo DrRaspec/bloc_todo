@@ -1,3 +1,4 @@
+import 'package:bloc_todo/app/routes/app_routes.dart';
 import 'package:bloc_todo/app/di/injection.dart';
 import 'package:bloc_todo/core/theme/app_colors.dart';
 import 'package:bloc_todo/core/utils/date_time_helper.dart';
@@ -41,47 +42,82 @@ class _TodoDetailPageState extends State<TodoDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: FutureBuilder<TodoModel?>(
-          future: _todoFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _goBack();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: FutureBuilder<TodoModel?>(
+            future: _todoFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (snapshot.hasError) {
-              return _DetailMessage(
-                icon: Icons.error_outline_rounded,
-                title: 'Could not load todo',
-                message: snapshot.error.toString(),
-                onBack: context.pop,
+              if (snapshot.hasError) {
+                return _DetailMessage(
+                  icon: Icons.error_outline_rounded,
+                  title: 'Could not load todo',
+                  message: snapshot.error.toString(),
+                  onBack: _goBack,
+                );
+              }
+
+              final todo = snapshot.data;
+              if (todo == null) {
+                return _DetailMessage(
+                  icon: Icons.search_off_rounded,
+                  title: 'Todo not found',
+                  message: 'This todo may have been deleted.',
+                  onBack: _goBack,
+                );
+              }
+
+              return _DetailContent(
+                todo: todo,
+                onEdit: () => _editTodo(todo),
+                onBack: _goBack,
+                onToggle: _toggleCompleted,
               );
-            }
-
-            final todo = snapshot.data;
-            if (todo == null) {
-              return _DetailMessage(
-                icon: Icons.search_off_rounded,
-                title: 'Todo not found',
-                message: 'This todo may have been deleted.',
-                onBack: context.pop,
-              );
-            }
-
-            return _DetailContent(todo: todo, onToggle: _toggleCompleted);
-          },
+            },
+          ),
         ),
       ),
     );
   }
+
+  Future<void> _editTodo(TodoModel todo) async {
+    final updatedTodo = await context.push<TodoModel>(
+      AppRoutes.editTodoPath(todo.id ?? widget.todoId),
+    );
+
+    if (updatedTodo == null || !mounted) return;
+
+    setState(() {
+      _todoFuture = Future.value(updatedTodo);
+    });
+  }
+
+  void _goBack() {
+    context.go(AppRoutes.home);
+  }
 }
 
 class _DetailContent extends StatelessWidget {
-  const _DetailContent({required this.todo, required this.onToggle});
+  const _DetailContent({
+    required this.todo,
+    required this.onEdit,
+    required this.onBack,
+    required this.onToggle,
+  });
 
   final TodoModel todo;
+  final VoidCallback onEdit;
+  final VoidCallback onBack;
   final Future<void> Function(TodoModel todo) onToggle;
 
   @override
@@ -97,10 +133,15 @@ class _DetailContent extends StatelessWidget {
             child: Row(
               children: [
                 IconButton(
-                  onPressed: () => context.pop(true),
+                  onPressed: onBack,
                   icon: const Icon(Icons.arrow_back_rounded),
                 ),
                 const Spacer(),
+                IconButton(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit_outlined),
+                ),
+                const SizedBox(width: 8),
                 _StatusPill(isCompleted: isCompleted),
               ],
             ),

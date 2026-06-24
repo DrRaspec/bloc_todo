@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:bloc_todo/shared/enums/todo_priority.dart';
 
+const Object _copyWithSentinel = Object();
+
 class TodoModel {
   final int? id;
   final String? title;
@@ -63,28 +65,44 @@ class TodoModel {
       TodoModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   TodoModel copyWith({
-    int? id,
-    String? title,
-    String? description,
-    bool? isCompleted,
-    TodoPriority? priority,
-    DateTime? dueDate,
-    DateTime? reminderAt,
-    int? notificationId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    Object? id = _copyWithSentinel,
+    Object? title = _copyWithSentinel,
+    Object? description = _copyWithSentinel,
+    Object? isCompleted = _copyWithSentinel,
+    Object? priority = _copyWithSentinel,
+    Object? dueDate = _copyWithSentinel,
+    Object? reminderAt = _copyWithSentinel,
+    Object? notificationId = _copyWithSentinel,
+    Object? createdAt = _copyWithSentinel,
+    Object? updatedAt = _copyWithSentinel,
   }) {
     return TodoModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      isCompleted: isCompleted ?? this.isCompleted,
-      priority: priority ?? this.priority,
-      dueDate: dueDate ?? this.dueDate,
-      reminderAt: reminderAt ?? this.reminderAt,
-      notificationId: notificationId ?? this.notificationId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      id: id == _copyWithSentinel ? this.id : id as int?,
+      title: title == _copyWithSentinel ? this.title : title as String?,
+      description: description == _copyWithSentinel
+          ? this.description
+          : description as String?,
+      isCompleted: isCompleted == _copyWithSentinel
+          ? this.isCompleted
+          : isCompleted as bool?,
+      priority: priority == _copyWithSentinel
+          ? this.priority
+          : priority as TodoPriority?,
+      dueDate: dueDate == _copyWithSentinel
+          ? this.dueDate
+          : dueDate as DateTime?,
+      reminderAt: reminderAt == _copyWithSentinel
+          ? this.reminderAt
+          : reminderAt as DateTime?,
+      notificationId: notificationId == _copyWithSentinel
+          ? this.notificationId
+          : notificationId as int?,
+      createdAt: createdAt == _copyWithSentinel
+          ? this.createdAt
+          : createdAt as DateTime?,
+      updatedAt: updatedAt == _copyWithSentinel
+          ? this.updatedAt
+          : updatedAt as DateTime?,
     );
   }
 

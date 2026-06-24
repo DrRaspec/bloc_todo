@@ -40,7 +40,7 @@ class HomeView extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final createdTodo = await context.push<TodoModel>(
-            AppRoutes.createTodo,
+            AppRoutes.createTodoPath,
           );
 
           if (createdTodo != null && context.mounted) {
@@ -100,14 +100,13 @@ class HomeView extends StatelessWidget {
                           },
                           onCompletedChanged: onCompletedChanged,
                           onEdit: (id) async {
-                            // final updatedTodo = await context.push<TodoModel>(
-                            //   AppRoutes.editTodo,
-                            //   extra: todos[index],
-                            // );
+                            final updatedTodo = await context.push<TodoModel>(
+                              AppRoutes.editTodoPath(id),
+                            );
 
-                            // if (updatedTodo != null && context.mounted) {
-                            //   context.read<TodoCubit>().loadTodos();
-                            // }
+                            if (updatedTodo != null && context.mounted) {
+                              context.read<TodoCubit>().loadTodos();
+                            }
                           },
                           onDelete: (id) async {
                             AppDialog.showDeleteTodoDialog(
