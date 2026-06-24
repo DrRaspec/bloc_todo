@@ -49,7 +49,7 @@ class CreateTodoCubit extends Cubit<CreateTodoState> {
         title: createdTodo.title ?? 'Todo reminder',
         body: createdTodo.description ?? 'Your task is due soon',
         scheduledAt: createdTodo.reminderAt!,
-        payload: createdTodo.id.toString(),
+        payload: 'todo_detail:${createdTodo.id}',
       );
 
       final todoWithNotification = createdTodo.copyWith(

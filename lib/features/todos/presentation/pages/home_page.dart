@@ -50,6 +50,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> onSearchSubmitted(String query) async {
+    await context.read<TodoCubit>().searchTodos(
+      query: query,
+      filter: TodoFilter.values[selectedFilterIndex],
+    );
+  }
+
+  Future<void> onDelete(int id) async {
+    await context.read<TodoCubit>().deleteTodo(id);
+  }
+
   Future<void> onRefresh() async {
     await context.read<TodoCubit>().loadTodos();
   }
@@ -93,6 +104,8 @@ class _HomePageState extends State<HomePage> {
               changeFilter: changeFilter,
               selectedFilterIndex: selectedFilterIndex,
               onCompletedChanged: onCompletedChanged,
+              onSearchSubmitted: onSearchSubmitted,
+              onDelete: onDelete,
             );
           }
 

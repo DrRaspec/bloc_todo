@@ -1,3 +1,5 @@
+import 'package:bloc_todo/app/routes/app_router.dart';
+import 'package:bloc_todo/app/routes/app_routes.dart';
 import 'package:bloc_todo/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -65,6 +67,7 @@ class NotificationService {
 
     await _createAndroidChannel();
     _isInitialized = true;
+    await _handleNotificationLaunch();
 
     AppLogger.i(
       'Notification service initialized',
@@ -77,43 +80,59 @@ class NotificationService {
 
     if (kIsWeb) return false;
 
+    bool granted;
+
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         final androidPlugin = _plugin
             .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin
             >();
-        return await androidPlugin?.requestNotificationsPermission() ?? false;
+        granted =
+            await androidPlugin?.requestNotificationsPermission() ?? false;
+        break;
 
       case TargetPlatform.iOS:
         final iosPlugin = _plugin
             .resolvePlatformSpecificImplementation<
               IOSFlutterLocalNotificationsPlugin
             >();
-        return await iosPlugin?.requestPermissions(
+        granted =
+            await iosPlugin?.requestPermissions(
               alert: true,
               badge: true,
               sound: true,
             ) ??
             false;
+        break;
 
       case TargetPlatform.macOS:
         final macOSPlugin = _plugin
             .resolvePlatformSpecificImplementation<
               MacOSFlutterLocalNotificationsPlugin
             >();
-        return await macOSPlugin?.requestPermissions(
+        granted =
+            await macOSPlugin?.requestPermissions(
               alert: true,
               badge: true,
               sound: true,
             ) ??
             false;
+        break;
 
       case TargetPlatform.fuchsia:
       case TargetPlatform.linux:
       case TargetPlatform.windows:
-        return true;
+        granted = true;
+        break;
     }
+
+    AppLogger.i(
+      'Notification permission result',
+      data: {'platform': defaultTargetPlatform.name, 'granted': granted},
+    );
+
+    return granted;
   }
 
   Future<void> showTodoNotification({
@@ -170,6 +189,8 @@ class NotificationService {
       payload: payload,
     );
 
+    final pendingRequests = await pendingNotifications();
+
     AppLogger.i(
       'Todo reminder scheduled',
       data: {
@@ -177,6 +198,8 @@ class NotificationService {
         'scheduledAt': scheduledDate.toIso8601String(),
         'timezone': tz.local.name,
         'androidScheduleMode': androidScheduleMode.name,
+        'pendingNotificationCount': pendingRequests.length,
+        'payload': payload,
       },
     );
   }
@@ -248,12 +271,40 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
+
+    final canScheduleExact =
+        await androidPlugin?.canScheduleExactNotifications() ?? false;
+    if (canScheduleExact) {
+      return AndroidScheduleMode.exactAllowWhileIdle;
+    }
+
     final exactAlarmGranted =
         await androidPlugin?.requestExactAlarmsPermission() ?? false;
+
+    if (!exactAlarmGranted) {
+      AppLogger.w(
+        'Exact alarm permission was not granted; scheduling an inexact reminder',
+      );
+    }
 
     return exactAlarmGranted
         ? AndroidScheduleMode.exactAllowWhileIdle
         : AndroidScheduleMode.inexactAllowWhileIdle;
+  }
+
+  Future<void> _handleNotificationLaunch() async {
+    if (kIsWeb) return;
+
+    final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+    final response = launchDetails?.notificationResponse;
+
+    if (launchDetails?.didNotificationLaunchApp != true || response == null) {
+      return;
+    }
+
+    Future<void>.delayed(Duration.zero, () {
+      _onNotificationTap(response);
+    });
   }
 
   void _onNotificationTap(NotificationResponse response) {
@@ -266,6 +317,24 @@ class NotificationService {
       },
     );
 
-    // TODO: Navigate to the todo details using response.payload.
+    final payload = response.payload;
+
+    if (payload == null || payload.isEmpty) return;
+
+    final todoId = payload.startsWith('todo_detail:')
+        ? payload.replaceFirst('todo_detail:', '')
+        : payload;
+    final todoIdInt = int.tryParse(todoId) ?? -1;
+
+    if (todoIdInt == -1) {
+      AppLogger.w(
+        'Invalid todo ID in notification payload',
+        data: {'payload': payload},
+      );
+      return;
+    }
+
+    AppRouter.router.go(AppRoutes.home);
+    AppRouter.router.push(AppRoutes.todoDetailPath(todoIdInt));
   }
 }

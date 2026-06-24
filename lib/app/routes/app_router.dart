@@ -4,6 +4,7 @@ import 'package:bloc_todo/features/todos/presentation/cubit/create_todo_cubit.da
 import 'package:bloc_todo/features/todos/presentation/cubit/todo_cubit.dart';
 import 'package:bloc_todo/features/todos/presentation/pages/create_todo_page.dart';
 import 'package:bloc_todo/features/todos/presentation/pages/home_page.dart';
+import 'package:bloc_todo/features/todos/presentation/pages/todo_detail_page.dart';
 import 'package:bloc_todo/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,6 +37,18 @@ class AppRouter {
             create: (_) => Injection.getIt<CreateTodoCubit>(),
             child: const CreateTodoPage(),
           );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.todoDetail,
+        builder: (context, state) {
+          final todoId = int.tryParse(state.pathParameters['id'] ?? '');
+
+          if (todoId == null) {
+            return const TodoDetailPage(todoId: -1);
+          }
+
+          return TodoDetailPage(todoId: todoId);
         },
       ),
     ],

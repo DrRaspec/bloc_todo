@@ -1,3 +1,4 @@
+import 'package:bloc_todo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -17,13 +18,13 @@ class HomeHeader extends StatelessWidget {
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.8,
-                  color: Color(0xFF111111),
+                  color: AppColors.primary,
                 ),
               ),
               SizedBox(height: 4),
               Text(
                 '3 tasks',
-                style: TextStyle(fontSize: 15, color: Color(0xFF777777)),
+                style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -33,8 +34,8 @@ class HomeHeader extends StatelessWidget {
             // TODO: Open settings
           },
           style: IconButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF111111),
+            backgroundColor: AppColors.surface,
+            foregroundColor: AppColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),

@@ -115,4 +115,57 @@ class TodoCubit extends Cubit<TodoState> {
       emit(TodoError(message: error.toString()));
     }
   }
+
+  Future<void> deleteTodo(int id) async {
+    try {
+      await repository.deleteTodo(id);
+
+      final currentState = state;
+
+      if (currentState is TodoLoaded) {
+        final updatedTodos = currentState.todos
+            .where((todo) => todo.id != id)
+            .toList();
+
+        emit(currentState.copyWith(todos: updatedTodos));
+      }
+    } catch (error, stackTrace) {
+      AppLogger.e(
+        'Failed to delete todo',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      emit(TodoError(message: error.toString()));
+    }
+  }
+
+  Future<void> searchTodos({
+    required String query,
+    required TodoFilter filter,
+  }) async {
+    if (query.isEmpty) {
+      await loadTodos(filter: filter);
+      return;
+    }
+
+    try {
+      emit(TodoLoading());
+
+      final todos = await repository.searchTodos(query: query, filter: filter);
+
+      if (todos.isEmpty) {
+        emit(TodoEmpty());
+        return;
+      }
+
+      emit(TodoLoaded(todos: todos, hasMore: false));
+    } catch (error, stackTrace) {
+      AppLogger.e(
+        'Failed to search todos',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      emit(TodoError(message: error.toString()));
+    }
+  }
 }

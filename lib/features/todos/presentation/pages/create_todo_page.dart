@@ -2,6 +2,7 @@ import 'package:bloc_todo/features/todos/presentation/cubit/create_todo_cubit.da
 import 'package:bloc_todo/features/todos/presentation/cubit/create_todo_state.dart';
 import 'package:bloc_todo/shared/enums/todo_priority.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
+import 'package:bloc_todo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -63,13 +64,16 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
     return BlocConsumer<CreateTodoCubit, CreateTodoState>(
       listener: (context, state) {
         if (state.status == CreateTodoStatus.success) {
-          if (state.warningMessage != null) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(state.warningMessage!)));
-          }
+          final warningMessage = state.warningMessage;
+          final scaffoldMessenger = ScaffoldMessenger.of(context);
 
           Navigator.of(context).pop(state.createdTodo);
+
+          if (warningMessage != null) {
+            scaffoldMessenger
+              ..hideCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text(warningMessage)));
+          }
         }
 
         if (state.status == CreateTodoStatus.failure) {
@@ -86,7 +90,7 @@ class _CreateTodoPageState extends State<CreateTodoPage> {
         final isSubmitting = state.status == CreateTodoStatus.submitting;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F8F8),
+          backgroundColor: AppColors.background,
           body: SafeArea(
             child: Form(
               key: _formKey,
@@ -253,8 +257,8 @@ class _CreateTodoHeader extends StatelessWidget {
         IconButton(
           onPressed: isSubmitting ? null : () => Navigator.pop(context),
           style: IconButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF111111),
+            backgroundColor: AppColors.surface,
+            foregroundColor: AppColors.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -272,13 +276,13 @@ class _CreateTodoHeader extends StatelessWidget {
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.6,
-                  color: Color(0xFF111111),
+                  color: AppColors.primary,
                 ),
               ),
               SizedBox(height: 4),
               Text(
                 'Add a new task to your list',
-                style: TextStyle(fontSize: 14, color: Color(0xFF777777)),
+                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               ),
             ],
           ),
@@ -384,7 +388,7 @@ class _FieldLabel extends StatelessWidget {
       style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF111111),
+        color: AppColors.primary,
       ),
     );
   }
@@ -417,9 +421,9 @@ class _InputField extends StatelessWidget {
       validator: validator,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Color(0xFFAAAAAA), fontSize: 14),
+        hintStyle: const TextStyle(color: AppColors.hint, fontSize: 14),
         filled: true,
-        fillColor: const Color(0xFFF8F8F8),
+        fillColor: AppColors.background,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 16,
@@ -455,10 +459,12 @@ class _PrioritySelector extends StatelessWidget {
           selected: priority == item,
           onSelected: enabled ? (_) => onChanged(item) : null,
           showCheckmark: false,
-          selectedColor: const Color(0xFF111111),
-          backgroundColor: const Color(0xFFF8F8F8),
+          selectedColor: AppColors.primary,
+          backgroundColor: AppColors.background,
           labelStyle: TextStyle(
-            color: priority == item ? Colors.white : const Color(0xFF555555),
+            color: priority == item
+                ? AppColors.surface
+                : AppColors.primaryDisabled,
             fontWeight: FontWeight.w600,
           ),
           side: BorderSide.none,
@@ -493,7 +499,7 @@ class _OptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFFF8F8F8),
+      color: AppColors.background,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -506,10 +512,10 @@ class _OptionTile extends StatelessWidget {
                 height: 42,
                 width: 42,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, size: 20, color: const Color(0xFF111111)),
+                child: Icon(icon, size: 20, color: AppColors.primary),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -521,7 +527,7 @@ class _OptionTile extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF111111),
+                        color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -529,13 +535,16 @@ class _OptionTile extends StatelessWidget {
                       subtitle,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF777777),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: Color(0xFF999999)),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textTertiary,
+              ),
             ],
           ),
         ),
@@ -560,7 +569,7 @@ class _ReminderBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       padding: EdgeInsets.fromLTRB(
@@ -578,7 +587,7 @@ class _ReminderBottomSheet extends StatelessWidget {
               width: 42,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFFD9D9D9),
+                color: AppColors.dragHandle,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -589,13 +598,13 @@ class _ReminderBottomSheet extends StatelessWidget {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF111111),
+              color: AppColors.primary,
             ),
           ),
           const SizedBox(height: 6),
           const Text(
             'Choose when you want to be reminded.',
-            style: TextStyle(fontSize: 14, color: Color(0xFF777777)),
+            style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 20),
           const _ReminderOptionTile(
@@ -619,7 +628,7 @@ class _ReminderBottomSheet extends StatelessWidget {
             icon: Icons.calendar_today_outlined,
             title: '1 day before',
           ),
-          const Divider(height: 24, color: Color(0xFFEDEDED)),
+          const Divider(height: 24, color: AppColors.border),
           const _ReminderOptionTile(
             option: _ReminderOption.custom,
             icon: Icons.tune_rounded,
@@ -658,8 +667,8 @@ class _ReminderOptionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final foregroundColor = isDestructive
-        ? const Color(0xFFD84A4A)
-        : const Color(0xFF111111);
+        ? AppColors.danger
+        : AppColors.primary;
 
     return Material(
       color: Colors.transparent,
@@ -675,8 +684,8 @@ class _ReminderOptionTile extends StatelessWidget {
                 height: 42,
                 decoration: BoxDecoration(
                   color: isDestructive
-                      ? const Color(0xFFFFEEEE)
-                      : const Color(0xFFF5F5F5),
+                      ? AppColors.dangerBackground
+                      : AppColors.subtleFill,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(icon, size: 20, color: foregroundColor),
@@ -700,7 +709,7 @@ class _ReminderOptionTile extends StatelessWidget {
                         subtitle!,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: Color(0xFF888888),
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -708,7 +717,7 @@ class _ReminderOptionTile extends StatelessWidget {
                 ),
               ),
               if (trailingIcon != null)
-                Icon(trailingIcon, color: const Color(0xFF999999)),
+                Icon(trailingIcon, color: AppColors.textTertiary),
             ],
           ),
         ),
@@ -731,10 +740,10 @@ class _SaveButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isSubmitting ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF111111),
-          disabledBackgroundColor: const Color(0xFF555555),
-          foregroundColor: Colors.white,
-          disabledForegroundColor: Colors.white,
+          backgroundColor: AppColors.primary,
+          disabledBackgroundColor: AppColors.primaryDisabled,
+          foregroundColor: AppColors.surface,
+          disabledForegroundColor: AppColors.surface,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -746,7 +755,7 @@ class _SaveButton extends StatelessWidget {
                 height: 22,
                 child: CircularProgressIndicator(
                   strokeWidth: 2.5,
-                  color: Colors.white,
+                  color: AppColors.surface,
                 ),
               )
             : const Text(

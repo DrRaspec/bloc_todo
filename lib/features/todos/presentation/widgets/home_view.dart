@@ -1,4 +1,5 @@
 import 'package:bloc_todo/app/routes/app_routes.dart';
+import 'package:bloc_todo/core/widgets/app_dialog.dart';
 import 'package:bloc_todo/features/todos/presentation/cubit/todo_cubit.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_filter_chips.dart';
 import 'package:bloc_todo/features/todos/presentation/widgets/home_header.dart';
@@ -7,6 +8,7 @@ import 'package:bloc_todo/features/todos/presentation/widgets/home_summary_card.
 import 'package:bloc_todo/features/todos/presentation/widgets/todo_card.dart';
 import 'package:bloc_todo/shared/enums/todo_filter.dart';
 import 'package:bloc_todo/shared/models/todo_model.dart';
+import 'package:bloc_todo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +21,8 @@ class HomeView extends StatelessWidget {
     this.changeFilter,
     this.selectedFilterIndex = 0,
     this.onCompletedChanged,
+    this.onDelete,
+    this.onSearchSubmitted,
   });
 
   final List<TodoModel> todos;
@@ -26,11 +30,13 @@ class HomeView extends StatelessWidget {
   final Future<void> Function(TodoFilter filter)? changeFilter;
   final int selectedFilterIndex;
   final Future<void> Function(TodoModel todo, bool? value)? onCompletedChanged;
+  final Future<void> Function(int id)? onDelete;
+  final Future<void> Function(String query)? onSearchSubmitted;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final createdTodo = await context.push<TodoModel>(
@@ -41,8 +47,8 @@ class HomeView extends StatelessWidget {
             context.read<TodoCubit>().loadTodos();
           }
         },
-        backgroundColor: const Color(0xFF111111),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.primary,
+        foregroundColor: AppColors.surface,
         elevation: 0,
         child: const Icon(Icons.add),
       ),
@@ -58,14 +64,19 @@ class HomeView extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(20, 24, 20, 0),
               sliver: SliverToBoxAdapter(child: HomeSummaryCard(todos: todos)),
             ),
-            const SliverPadding(
+            SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-              sliver: SliverToBoxAdapter(child: HomeSearchBox()),
+              sliver: SliverToBoxAdapter(
+                child: HomeSearchBox(onSearchSubmitted: onSearchSubmitted),
+              ),
             ),
             SliverPadding(
               padding: EdgeInsets.fromLTRB(20, 18, 20, 0),
               sliver: SliverToBoxAdapter(
-                child: HomeFilterChips(changeFilter: changeFilter, selectedFilterIndex: selectedFilterIndex),
+                child: HomeFilterChips(
+                  changeFilter: changeFilter,
+                  selectedFilterIndex: selectedFilterIndex,
+                ),
               ),
             ),
             SliverPadding(
@@ -78,7 +89,35 @@ class HomeView extends StatelessWidget {
                       itemBuilder: (context, index) {
                         return TodoCard(
                           todo: todos[index],
+                          onTap: () async {
+                            final shouldRefresh = await context.push<bool>(
+                              AppRoutes.todoDetailPath(todos[index].id ?? 0),
+                            );
+
+                            if (shouldRefresh == true && context.mounted) {
+                              context.read<TodoCubit>().loadTodos();
+                            }
+                          },
                           onCompletedChanged: onCompletedChanged,
+                          onEdit: (id) async {
+                            // final updatedTodo = await context.push<TodoModel>(
+                            //   AppRoutes.editTodo,
+                            //   extra: todos[index],
+                            // );
+
+                            // if (updatedTodo != null && context.mounted) {
+                            //   context.read<TodoCubit>().loadTodos();
+                            // }
+                          },
+                          onDelete: (id) async {
+                            AppDialog.showDeleteTodoDialog(
+                              context: context,
+                              onDelete: (id) async {
+                                await onDelete?.call(id);
+                              },
+                              todoId: id,
+                            );
+                          },
                         );
                       },
                     ),
@@ -100,7 +139,7 @@ class _EmptyTodoList extends StatelessWidget {
       child: Center(
         child: Text(
           'No todos yet',
-          style: TextStyle(fontSize: 16, color: Color(0xFF777777)),
+          style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
         ),
       ),
     );

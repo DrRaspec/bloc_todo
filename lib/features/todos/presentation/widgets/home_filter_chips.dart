@@ -1,4 +1,5 @@
 import 'package:bloc_todo/shared/enums/todo_filter.dart';
+import 'package:bloc_todo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class HomeFilterChips extends StatelessWidget {
@@ -61,10 +62,10 @@ class _FilterChipItem extends StatelessWidget {
       selected: selected,
       onSelected: (_) => onTap(),
       showCheckmark: false,
-      selectedColor: const Color(0xFF111111),
-      backgroundColor: Colors.white,
+      selectedColor: AppColors.primary,
+      backgroundColor: AppColors.surface,
       labelStyle: TextStyle(
-        color: selected ? Colors.white : const Color(0xFF555555),
+        color: selected ? AppColors.surface : AppColors.primaryDisabled,
         fontWeight: FontWeight.w600,
       ),
       side: BorderSide.none,

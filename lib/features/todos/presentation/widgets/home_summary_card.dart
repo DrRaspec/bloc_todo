@@ -1,20 +1,30 @@
 import 'package:bloc_todo/shared/models/todo_model.dart';
+import 'package:bloc_todo/core/theme/app_colors.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class HomeSummaryCard extends StatelessWidget {
+class HomeSummaryCard extends StatefulWidget {
   final List<TodoModel> todos;
   const HomeSummaryCard({super.key, required this.todos});
 
   @override
+  State<HomeSummaryCard> createState() => _HomeSummaryCardState();
+}
+
+class _HomeSummaryCardState extends State<HomeSummaryCard> {
+  int touchedIndex = -1;
+
+  @override
   Widget build(BuildContext context) {
-    final total = todos.length;
-    final completed = todos.where((todo) => (todo.isCompleted ?? false)).length;
-    double percentage = total > 0 ? (completed / total) * 100 : 0;
+    final total = widget.todos.length;
+    final completed = widget.todos
+        .where((todo) => (todo.isCompleted ?? false))
+        .length;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF111111),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Row(
@@ -26,7 +36,7 @@ class HomeSummaryCard extends StatelessWidget {
                 Text(
                   'Progress',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.surface,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
@@ -34,7 +44,7 @@ class HomeSummaryCard extends StatelessWidget {
                 SizedBox(height: 8),
                 Text(
                   '$completed of $total completed',
-                  style: TextStyle(color: Color(0xFFBDBDBD), fontSize: 14),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 14),
                 ),
               ],
             ),
@@ -42,30 +52,94 @@ class HomeSummaryCard extends StatelessWidget {
           SizedBox(
             height: 58,
             width: 58,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                CircularProgressIndicator(
-                  value: percentage / 100,
-                  strokeWidth: 6,
-                  backgroundColor: Colors.white.withValues(alpha: 0.14),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+            child: PieChart(
+              PieChartData(
+                pieTouchData: PieTouchData(
+                  touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                    setState(() {
+                      if (!event.isInterestedForInteractions ||
+                          pieTouchResponse == null ||
+                          pieTouchResponse.touchedSection == null) {
+                        touchedIndex = -1;
+                        return;
+                      }
+                      touchedIndex =
+                          pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    });
+                  },
                 ),
-                Center(
-                  child: Text(
-                    '$percentage%',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
+                borderData: FlBorderData(show: false),
+                sectionsSpace: 0,
+                centerSpaceRadius: 16,
+                sections: showingSections(),
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
+  List<PieChartSectionData> showingSections() {
+    const sections = [
+      _PieSectionData(
+        color: AppColors.chartBlack,
+        labelColor: AppColors.chartTextDark,
+        value: 40,
+        title: '40%',
+      ),
+      _PieSectionData(
+        color: AppColors.chartDarkGray,
+        labelColor: AppColors.chartTextDark,
+        value: 30,
+        title: '30%',
+      ),
+      _PieSectionData(
+        color: AppColors.chartGray,
+        labelColor: AppColors.chartTextLight,
+        value: 15,
+        title: '15%',
+      ),
+      _PieSectionData(
+        color: AppColors.chartLightGray,
+        labelColor: AppColors.chartTextLight,
+        value: 15,
+        title: '15%',
+      ),
+    ];
+
+    return List.generate(sections.length, (i) {
+      final isTouched = i == touchedIndex;
+      final section = sections[i];
+
+      final double fontSize = isTouched ? 13.0 : 11.0;
+      final double radius = isTouched ? 38 : 28;
+
+      return PieChartSectionData(
+        color: section.color,
+        value: section.value,
+        title: section.title,
+        radius: radius,
+        titleStyle: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w700,
+          color: section.labelColor,
+        ),
+      );
+    });
+  }
+}
+
+class _PieSectionData {
+  final Color color;
+  final Color labelColor;
+  final double value;
+  final String title;
+
+  const _PieSectionData({
+    required this.color,
+    required this.labelColor,
+    required this.value,
+    required this.title,
+  });
 }

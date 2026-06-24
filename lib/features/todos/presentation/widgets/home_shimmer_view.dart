@@ -1,3 +1,4 @@
+import 'package:bloc_todo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class HomeShimmerView extends StatelessWidget {
@@ -6,11 +7,11 @@ class HomeShimmerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+      backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton(
         onPressed: null,
-        backgroundColor: const Color(0xFFE5E5E5),
-        foregroundColor: Colors.white,
+        backgroundColor: AppColors.shimmerButton,
+        foregroundColor: AppColors.surface,
         elevation: 0,
         child: const Icon(Icons.add),
       ),
@@ -94,9 +95,9 @@ class _ShimmerState extends State<_Shimmer>
               begin: Alignment(-1.5 + value * 3, -0.3),
               end: Alignment(-0.5 + value * 3, 0.3),
               colors: const [
-                Color(0xFFE7E7E7),
-                Color(0xFFF6F6F6),
-                Color(0xFFE7E7E7),
+                AppColors.shimmerBase,
+                AppColors.shimmerHighlight,
+                AppColors.shimmerBase,
               ],
               stops: const [0.25, 0.5, 0.75],
             ).createShader(bounds);
@@ -126,7 +127,7 @@ class _ShimmerBox extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: const Color(0xFFE7E7E7),
+          color: AppColors.shimmerBase,
           borderRadius: BorderRadius.circular(radius),
         ),
       ),
@@ -165,7 +166,7 @@ class _SummaryCardShimmer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF111111),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(28),
       ),
       child: const Row(
@@ -221,9 +222,9 @@ class _TodoCardShimmer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFEDEDED)),
+        border: Border.all(color: AppColors.border),
       ),
       child: const Row(
         children: [

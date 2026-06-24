@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc_todo/app/routes/app_routes.dart';
 import 'package:bloc_todo/gen/assets.gen.dart';
+import 'package:bloc_todo/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -50,7 +51,7 @@ class _SplashPageState extends State<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FF),
+      backgroundColor: AppColors.splashBackground,
       body: SafeArea(
         child: Center(
           child: SizedBox.square(
@@ -62,7 +63,7 @@ class _SplashPageState extends State<SplashPage>
                 return const Icon(
                   Icons.checklist_rounded,
                   size: 96,
-                  color: Color(0xFF10B981),
+                  color: AppColors.success,
                 );
               },
               onLoaded: (composition) {

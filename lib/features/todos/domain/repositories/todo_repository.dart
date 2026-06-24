@@ -11,4 +11,9 @@ abstract class TodoRepository {
   Future<int> deleteTodo(int id);
   Future<int> deleteMultiTodo(List<int> id);
   Future<int> deleteAllTodo();
+
+  Future<List<TodoModel>> searchTodos({
+    required String query,
+    required TodoFilter filter,
+  });
 }

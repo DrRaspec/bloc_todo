@@ -52,4 +52,12 @@ class TodoRepositoryImpl extends TodoRepository {
   Future<int> updateTodo(TodoModel todo) {
     return localDb.updateTodo(todo);
   }
+
+  @override
+  Future<List<TodoModel>> searchTodos({
+    required String query,
+    required TodoFilter filter,
+  }) {
+    return localDb.searchTodos(query: query, filter: filter);
+  }
 }

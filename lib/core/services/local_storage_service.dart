@@ -147,6 +147,24 @@ class LocalStorageService {
     });
   }
 
+  Future<List<TodoModel>> searchTodos({
+    String? query,
+    required TodoFilter filter,
+  }) async {
+    if (!isOpen()) {
+      await open();
+    }
+    final List<Map<String, dynamic>> maps = await _database!.query(
+      tableName,
+      orderBy: '$columnCreatedAt DESC',
+      where: _searchWhereClause(query, filter),
+      whereArgs: _searchWhereArgs(query, filter),
+    );
+    return List.generate(maps.length, (i) {
+      return TodoModel.fromMap(maps[i]);
+    });
+  }
+
   Future<int> updateTodo(TodoModel todo) async {
     if (!isOpen()) {
       await open();
@@ -237,6 +255,40 @@ class LocalStorageService {
         return [1];
       case TodoFilter.all:
         return null;
+    }
+  }
+
+  String _searchWhereClause(String? query, TodoFilter filter) {
+    final filterWhereClause = _getFilterWhereClause(filter);
+    final searchWhereClause = query != null && query.isNotEmpty
+        ? '($columnTitle LIKE ? OR $columnDescription LIKE ?)'
+        : null;
+
+    if (filterWhereClause != null && searchWhereClause != null) {
+      return '$filterWhereClause AND $searchWhereClause';
+    } else if (filterWhereClause != null) {
+      return filterWhereClause;
+    } else if (searchWhereClause != null) {
+      return searchWhereClause;
+    } else {
+      return '';
+    }
+  }
+
+  List<dynamic> _searchWhereArgs(String? query, TodoFilter filter) {
+    final filterWhereArgs = _getFilterWhereArgs(filter);
+    final searchWhereArgs = query != null && query.isNotEmpty
+        ? ['%$query%', '%$query%']
+        : [];
+
+    if (filterWhereArgs != null && searchWhereArgs.isNotEmpty) {
+      return [...filterWhereArgs, ...searchWhereArgs];
+    } else if (filterWhereArgs != null) {
+      return filterWhereArgs;
+    } else if (searchWhereArgs.isNotEmpty) {
+      return searchWhereArgs;
+    } else {
+      return [];
     }
   }
 
