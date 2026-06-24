@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
             );
           }
 
-          return const SizedBox();
+          return const HomeShimmerView();
         },
       ),
     );

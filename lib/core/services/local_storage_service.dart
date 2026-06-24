@@ -72,27 +72,34 @@ class LocalStorageService {
       },
       onUpgrade: (db, oldVersion, newVersion) async {
         if (oldVersion < 2) {
-          await db.execute(
-            'ALTER TABLE $tableName '
-            'ADD COLUMN $columnPriority INTEGER NOT NULL DEFAULT 0',
+          await _alterTableAddColumn(
+            db,
+            columnPriority,
+            'INTEGER NOT NULL DEFAULT 0',
           );
         }
         if (oldVersion < 3) {
-          await db.execute(
-            'ALTER TABLE $tableName ADD COLUMN $columnDueDate INTEGER',
-          );
+          await _alterTableAddColumn(db, columnDueDate, 'INTEGER');
         }
         if (oldVersion < 4) {
-          await db.execute(
-            'ALTER TABLE $tableName ADD COLUMN $columnReminderAt INTEGER',
-          );
-          await db.execute(
-            'ALTER TABLE $tableName '
-            'ADD COLUMN $columnNotificationId INTEGER',
-          );
+          await _alterTableAddColumn(db, columnReminderAt, 'INTEGER');
+
+          await _alterTableAddColumn(db, columnNotificationId, 'INTEGER');
         }
       },
     );
+  }
+
+  Future<void> _alterTableAddColumn(
+    Database db,
+    String columnName,
+    String columnType,
+  ) async {
+    if (!await _isColumnExists(db, columnName)) {
+      await db.execute(
+        'ALTER TABLE $tableName ADD COLUMN $columnName $columnType',
+      );
+    }
   }
 
   Future<TodoModel> insertTodo(TodoModel todo) async {
@@ -231,5 +238,10 @@ class LocalStorageService {
       case TodoFilter.all:
         return null;
     }
+  }
+
+  Future<bool> _isColumnExists(Database db, String columnName) async {
+    final result = await db.rawQuery('PRAGMA table_info($tableName)');
+    return result.any((column) => column['name'] == columnName);
   }
 }
